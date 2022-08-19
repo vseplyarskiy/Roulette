@@ -1,0 +1,40 @@
+use strict;
+
+
+my %pop;
+
+
+$pop{'1'}='eas';
+$pop{'2'}='sas';
+$pop{'3'}='afr';
+$pop{'4'}='nfe';
+$pop{'5'}='amr';
+
+my $cross; my $priv;
+
+my %dat;
+for my $chr (1..3){
+open (IN,"/net/home/vseplyarsky/GNOMAD_Tufts/mut_model/SFS/good_result_$chr")||die;
+#my $cross; my $priv;
+while (<IN>){
+    chomp;
+    my @a=split/\s/;
+    my $l="$a[2] $a[3]";
+    $l=length($l);
+    next unless $l ==3;
+    next unless ($a[4]+$a[5]+$a[6]+$a[7]+$a[8])>5 && ($a[4]+$a[5]+$a[6]+$a[7]+$a[8])<20;
+    next unless ($a[4]);
+    if ($a[6]||$a[7]||$a[8]){$cross++}
+    else {$priv++}
+    for my $pop (1..5){
+	my $lp=$pop+3;
+	if ($a[$lp]){$dat{$pop{$pop}}+=$a[$lp]};
+    }
+  #  if ($a[6] && $a[7]){$cross++}
+  #  if (($a[6] && (!($a[7])))||($a[7] && (!($a[6])))){$priv++}
+}}
+
+foreach my $pop (sort keys %pop){
+    print "$pop{$pop} $dat{$pop{$pop}}\n";}
+my $r=$priv/$cross;
+print "$r=$priv/$cross\n";
