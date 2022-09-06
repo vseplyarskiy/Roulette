@@ -12,7 +12,7 @@ Below is instructions on how to get a probability of a mutation mutation under n
 
 From a list of sites where the user wants a probability of observing a mutation, create a tsv file with with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header. Note that we also do not have estimates for X and Y chromosomes.
 
-Following is an example input file:
+Following is the first 10 lines of an example input file:
 ```sh
 CHROM	POS	REF	ALT	AC	polymorphic	mu	mu_quality
 1	924437	G	A	0.0	0	0.4	TFBS
