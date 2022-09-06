@@ -8,6 +8,10 @@ Unfortunately, we cannot use the raw mutation rates directly because we need the
 
 Below is instructions on how to get a probability of a mutation mutation under neutrality.
 
+## Instruction for packages
+
+We use python3 for our script. Please install python packages pandas, scipy, and numpy.
+
 ## Instruction for input files
 
 From a list of sites where the user wants a probability of observing a mutation, create a tsv file with with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header. Note that we also do not have estimates for X and Y chromosomes.
