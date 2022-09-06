@@ -1,4 +1,7 @@
-# To add the raw Roulette mutation rates please use add_raw_rates.py.
+<h1 align="center"> Adding Roulette Mutation Rate </h1>
+
+
+To add the raw Roulette mutation rates please use add_raw_rates.py.
 
 Example:
   python add_raw_rates.py --vcf_dir directory_for_Roulette_rates_vcf --input_filename input_filename_to_add_raw_rates --output_header output_header
