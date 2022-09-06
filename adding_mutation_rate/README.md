@@ -8,7 +8,7 @@ Unfortunately, we cannot use the raw mutation rates directly because we need the
 
 Below is instructions on how to get a probability of mutation under neutrality.
 
-# Instruction for input files
+## Instruction for input files
 
 For the input files, please provide a tsv file with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header.
 
