@@ -14,6 +14,11 @@ For the input files, please provide a tsv file with CHROM, POS, REF, and ALT as 
 
 # Synonymous variants as Background Sites
 
+```sh
+python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --syn synonymous_variants_filename
+
+```
+
 # Manual Background Sites
 
 Example:
