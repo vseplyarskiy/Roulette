@@ -6,7 +6,7 @@ First, please download the raw mutation rate files from this [link](http://genet
 
 Unfortunately, we cannot use the raw mutation rates directly because we need the linearly scale the mutation rate for each population sequencing data, since the mutation rate is linearly dependent on the effective population size of the sample.
 
-Below is instructions on how to get a probability of mutation under neutrality
+Below is instructions on how to get a probability of mutation under neutrality.
 
 # To add the raw Roulette mutation rates please use add_raw_rates.py.
 
