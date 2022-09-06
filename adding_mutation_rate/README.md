@@ -8,7 +8,7 @@ Unfortunately, we cannot use the raw mutation rates directly because we need the
 
 Below is instructions on how to get a probability of mutation under neutrality.
 
-# To add the raw Roulette mutation rates please use add_raw_rates.py.
+# Manual Background Sites
 
 Example:
   python add_raw_rates.py --vcf_dir directory_for_Roulette_rates_vcf --input_filename input_filename_to_add_raw_rates --output_header output_header
