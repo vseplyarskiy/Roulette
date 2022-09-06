@@ -2,7 +2,7 @@
 
 With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. We wrote some code in python to make it easier for people to use the mutation rate estimates for their own analyses.
 
-First, please download the raw mutation rate files from ftp://genetics.bwh.harvard.edu/Vova/Roulette)
+First, please download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/)
 
 
 Below is instructions on how to get a probability of mutation under neutrality
