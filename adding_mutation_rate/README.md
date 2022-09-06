@@ -20,7 +20,8 @@ CHROM	POS	REF	ALT
 1	924440	G	A	
 1	924440	G	C	
 1	924440	G	T	
-1	924443	C	A	```
+1	924443	C	A	
+```
 
 # Synonymous variants as Background Sites
 
