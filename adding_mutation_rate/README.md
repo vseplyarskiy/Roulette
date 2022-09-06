@@ -14,15 +14,13 @@ From a list of sites where the user wants a probability of observing a mutation,
 
 Following is the first 10 lines of an example input file:
 ```sh
-CHROM	POS	REF	ALT	AC	polymorphic	mu	mu_quality
-1	924437	G	A	0.0	0	0.4	TFBS
-1	924437	G	C	0.0	0	0.18600000000000003	TFBS
-1	924437	G	T	0.0	0	0.139	TFBS
-1	924440	G	A	0.0	0	0.342	TFBS
-1	924440	G	C	0.0	0	0.18600000000000003	TFBS
-1	924440	G	T	0.0	0	0.073	TFBS
-1	924443	C	A	0.0	0	0.03	TFBS
-```
+CHROM	POS	REF	ALT
+1	924437	G	A	
+1	924437	G	C	
+1	924440	G	A	
+1	924440	G	C	
+1	924440	G	T	
+1	924443	C	A	```
 
 # Synonymous variants as Background Sites
 
