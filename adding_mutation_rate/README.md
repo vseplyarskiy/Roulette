@@ -1,5 +1,7 @@
 <h1 align="center"> Adding Roulette Mutation Rate </h1>
 
+With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. We wrote some code in python to make it easier for people to use the mutation rate esitmates for their own analyses.
+
 
 To add the raw Roulette mutation rates please use add_raw_rates.py.
 
