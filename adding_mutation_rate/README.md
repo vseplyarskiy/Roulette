@@ -6,11 +6,23 @@ First, download the raw mutation rate files from this [link](http://genetics.bwh
 
 Unfortunately, we cannot use the raw mutation rates directly because we need the linearly scale the mutation rate for each population sequencing data, since the mutation rate is linearly dependent on the effective population size of the sample. Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral (background) sites. We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing a neutral sites will be the most accurate way to scale the mutation rate properly.
 
-Below is instructions on how to get a probability of mutation under neutrality.
+Below is instructions on how to get a probability of a mutation mutation under neutrality.
 
 ## Instruction for input files
 
-For the input files, please provide a tsv file with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header.
+From a list of sites where the user wants a probability of observing a mutation, create a tsv file with with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header. Note that we also do not have estimates for X and Y chromosomes.
+
+Following is an example input file:
+```sh
+CHROM	POS	REF	ALT	AC	polymorphic	mu	mu_quality
+1	924437	G	A	0.0	0	0.4	TFBS
+1	924437	G	C	0.0	0	0.18600000000000003	TFBS
+1	924437	G	T	0.0	0	0.139	TFBS
+1	924440	G	A	0.0	0	0.342	TFBS
+1	924440	G	C	0.0	0	0.18600000000000003	TFBS
+1	924440	G	T	0.0	0	0.073	TFBS
+1	924443	C	A	0.0	0	0.03	TFBS
+```
 
 # Synonymous variants as Background Sites
 
