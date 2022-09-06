@@ -33,6 +33,8 @@ CHROM	POS	REF	ALT
 python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --syn synonymous_variants_filename
 
 ```
+Roulette_vcf_dir is the directory where the vcf of Roulette rates is located. input_filename is the filename for the input file described above. synonymous_variants_filename is the name for the tsv file that contains a list of observed synonymous variants in the sample. The file should follow the same format as the input file described above.
+
 
 # Manual Background Sites
 
