@@ -34,32 +34,22 @@ CHROM	POS	REF	ALT
 ```
 Roulette_vcf_dir is the directory where the vcf of Roulette rates is located. input_filename is the filename for the input file described above. synonymous_variants_filename is the name for the tsv file that contains a list of observed synonymous variants in the sample. The file should follow the same format as the input file described above.
 
-
 ## Using manual set of Background Sites
 
-To use a user-chosen manual set of sites, as background you must first run add_raw_rates.py.
+To use a user-chosen manual set of sites, as background sites, you must first run add_raw_rates.py.
 
 ```sh
   python add_raw_rates.py --vcf_dir Roulette_vcf_dir --input_filename background_sites_filename --output_header output_header
 ```
+Here, note that background_sites_filename follows the same format as the input file described above. Also, background_sites_filename must include both observed variants and potential variants.
 
-Example:
-  python add_raw_rates.py --vcf_dir directory_for_Roulette_rates_vcf --input_filename input_filename_to_add_raw_rates --output_header output_header
-  
-The input filename must be a tsv file with the first column CHROM, second column POS, third column REF, and fourth column ALT. You can have other additional columns. The input filename must have a header column.
+The script will output two files output_header.tsv file, which is the same tsv as background_sites_filename, but with the raw Roulette rates added. The second file is output_header_binned.tsv file, which is the summary of the number of sites for each mutation rate bin. output_header_binned.tsv will be used as an input for the add_scaled_rates.py.
 
-This code will output two files. First a file called output_header + ".tsv" file with an added mutation rate. The second file is called output_header + "_binned.tsv", which is a summary of the number of sites for each mutation rate bins.
+```sh
+  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --background_sites output_header_binned.tsv --polymorphic_count number_of_mutations_in_background_sites
+```
+Please count up the number of observed mutations in the background sites, and pass as an argument to --polymorphic_count.
 
+## Whole Genome as Background Sites
 
-# To scale the Roulette rates, please use add_scaled_rates.py.
-
-Example:
-  python add_scaled_rates.py --vcf_dir directory_for_Roulette_rates_vcf --input_filename input_filename_to_add_scaled_rates --output_header output_header --background_sites binned_background_sites_filename --polymorphic_count number_of_mutations_in_background_sites
-  
-The input filename must be a tsv file with the first column CHROM, second column POS, third column REF, and fourth column ALT. You can have other additional columns. The input filename must have a header column.
-
-In addition to input filename and the directory for the Roulette rates, you must provide binned_background_sites_filename, which is the "_binned.tsv" output from add_raw_rates.py. In order to scale the mutation rate properly, we need information on the neutral set of sites. Please select a set of sites that you consider neutral and run this on add_raw_rates.py.
-
-For --polymorphic_count please provide the number of sites with mutations from the set of background sites.
-
-This code will output two files. First a file called output_header + ".tsv" file with two columns: scaled mutation rate and a probability of observing a mutation for each site.
+This script is currently in progress.
