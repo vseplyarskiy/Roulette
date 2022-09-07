@@ -27,16 +27,21 @@ CHROM	POS	REF	ALT
 1	924443	C	A	
 ```
 
-# Synonymous variants as Background Sites
+## Synonymous variants as Background Sites
 
 ```sh
-python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --syn synonymous_variants_filename
-
+  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --syn synonymous_variants_filename
 ```
 Roulette_vcf_dir is the directory where the vcf of Roulette rates is located. input_filename is the filename for the input file described above. synonymous_variants_filename is the name for the tsv file that contains a list of observed synonymous variants in the sample. The file should follow the same format as the input file described above.
 
 
-# Manual Background Sites
+## Using manual set of Background Sites
+
+To use a user-chosen manual set of sites, as background you must first run add_raw_rates.py.
+
+```sh
+  python add_raw_rates.py --vcf_dir Roulette_vcf_dir --input_filename background_sites_filename --output_header output_header
+```
 
 Example:
   python add_raw_rates.py --vcf_dir directory_for_Roulette_rates_vcf --input_filename input_filename_to_add_raw_rates --output_header output_header
