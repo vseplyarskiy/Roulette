@@ -2,9 +2,11 @@
 
 With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. We wrote some code in python to make it easier for people to use the mutation rate estimates for their own analyses.
 
-First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/).
+First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). You can multiply the raw rates by 1.015*10^-7 to get the per generation mutation rate.
 
-Unfortunately, we cannot use the raw mutation rates directly because we need the linearly scale the mutation rate for each population sequencing data, since the mutation rate is linearly dependent on the effective population size of the sample. Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral (background) sites. We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing a neutral sites will be the most accurate way to scale the mutation rate properly.
+Unfortunately, we cannot use the raw mutation rates directly because we need the linearly scale the mutation rate for each population sequencing data, since the mutation rate is linearly dependent on the effective population size of the sample. Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral (background) sites. In Seplyarskiy et al., to fit to the gnomAD v2 dataset, we scale the mutation rate by 1.39 times the raw rates and 1.41*10^-7 times the per generation mutation rate.
+
+We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing a neutral sites will be the most accurate way to scale the mutation rate properly.
 
 Below is instructions on how to get a probability of a mutation mutation under neutrality.
 
