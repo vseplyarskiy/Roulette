@@ -6,16 +6,118 @@ import optparse
 import sys
 import numpy as np
 from scipy.optimize import minimize
-import dask.dataframe as dd
 
-def main(vcf_dir, input_filename, output_header, input_zip, output_zip, chromosome, background_binned_filename, polymorphic_count, quality_filter):
+def main(vcf_dir, input_filename, output_header, input_zip, output_zip, chromosome, background_binned_filename, polymorphic_count, quality_filter, syn):
     
-    if polymorphic_count <0:
-        print("Please include polymorphic_count to argument")
+    #when synonymous sites are used as scaling sites
+    if syn != "":
+        mutation_rate_list = []
+        counter = 0
+
+        # calculate proper scaling
+        f_in = open(syn, "rt")
+                
+        mut_fname_v4 = "all_hq_synonymous_variants.tsv"
+        mut_file_v4 = open(os.path.join(mut_fname_v4), "rt")
+        mut_reader_v4 = csv.reader(mut_file_v4, delimiter="\t")
+
+        header = next(mut_reader_v4)
+        mut_current_v4 = next(mut_reader_v4)
+        pos_current_v4 = int(mut_current_v4[1])
+
+        in_reader = csv.reader(f_in, delimiter="\t")
+        header = next(in_reader)
+
+        chrom_col = 0
+        pos_col = 1
+        ref_col = 2
+        alt_col = 3
+
+        for row in in_reader:
+
+            chrom = int(row[chrom_col])
+            
+            try:
+                pos = int(row[pos_col])
+            except ValueError:
+                continue
+
+            ref = row[ref_col]
+            alt = row[alt_col]
+            # print(chrom, pos, ref, alt)
+            
+            if chrom < int(mut_current_v4[0]):
+                continue
+
+            ## Update mutation rate reader if not on the right chromosome
+            while chrom > int(mut_current_v4[0]):
+                mut_current_v4 = next(mut_reader_v4)
+                print(chrom)
+                print(pos)
+                print(mut_current_v4)
+
+            # Locate current mutation in v4
+            if pos_current_v4 != pos:
+                pos_current_v4 = int(mut_current_v4[1])
+                # print("locating mutation position: " + str(pos) + " from " + str(pos_current_v4))
+                
+                exit_while_loop = False
+                
+                while (pos_current_v4 < pos) & (exit_while_loop == False):
+                    try: 
+                        mut_current_v4 = next(mut_reader_v4)
+                    except StopIteration:
+                        pos_current_v4 = pos
+                        exit_while_loop = True
+
+                    pos_current_v4 = int(mut_current_v4[1])
+                    
+                ref_current_v4 = mut_current_v4[2]
+                pos_ind_v4 = pos_current_v4
+
+                if ref_current_v4 != ref and (pos_ind_v4 == pos):
+                    print("reference doesn't match, {}:{}".format(chrom, pos))
+
+                alt_dict_v4 = {}
+
+                while (pos_ind_v4 == pos) and (ref_current_v4 == ref):
+#                     print(mut_current_v4[6])
+                    try:
+                        alt_dict_v4[mut_current_v4[3]] = float(mut_current_v4[6])
+                    except ValueError:
+                        pass
+                        
+                    try: 
+                        mut_current_v4 = next(mut_reader_v4)
+                        pos_ind_v4 = int(mut_current_v4[1])
+                    except StopIteration:
+                        pos_ind_v4 = int(mut_current_v4[1]) + 1
+                    
+            try:
+                mutation_rate_list.append(alt_dict_v4[alt])
+                counter += 1
+            except KeyError:
+                continue
         
-    # calculate proper scaling
-    df_mu = pd.read_csv(background_binned_filename, sep = "\t")
+        print("done going over synonymous variants")
+        
+        df_mu = pd.read_csv(mut_fname_v4, sep = "\t")
+        df_mu = df_mu.groupby("mu").size()
+        df_mu = pd.DataFrame(df_mu)
+        df_mu = df_mu.reset_index()
+        df_mu.rename({0: "0"}, axis = 1, inplace = True)
+        
+        polymorphic_count = counter
+        
+    else:
+        if polymorphic_count <0:
+            print("Please include polymorphic_count to argument")
+
+        # calculate proper scaling
+        df_mu = pd.read_csv(background_binned_filename, sep = "\t")
+        
     
+
     def poisson_function(x):    
             return abs(sum((1 - np.exp(-1 * x * df_mu["mu"]))*df_mu["0"]) - polymorphic_count)
 
@@ -25,9 +127,9 @@ def main(vcf_dir, input_filename, output_header, input_zip, output_zip, chromoso
 
     # this is the proper scaling factor for the mutation rate
     k = res.x[0]
-    
+    print("scaling factor is: ", k)
+
     #add scaled rate to new file
-        
     if chromosome == 0:
         output_file = output_header
     else:
@@ -127,10 +229,7 @@ def main(vcf_dir, input_filename, output_header, input_zip, output_zip, chromoso
 
                 mut_current_v4 = next(mut_reader_v4)
                 pos_ind_v4 = int(mut_current_v4[1])
-        try:
-            out_writer.writerow(row + [k * alt_dict_v4[alt], quality])
-        except KeyError:
-            out_writer.writerow(row + ["NA", "NA"])
+
             
         if quality_filter == 1:
             if quality == "TFBS" or quality == "high":
@@ -159,8 +258,10 @@ if __name__ == "__main__":
     parser.add_option("--background_sites", type="str", default="", dest="background_binned_filename", help="specify filename for the binned dataframe of background sites")
     parser.add_option("--polymorphic_count", type="int", default=-1, dest="polymorphic_count", help="specify filename for the binned dataframe of background sites")
     parser.add_option("--quality", type="int", default=1, dest="quality_filter", help="specify quality filter you want. 0 for no filter, 1 for filtering low-quality regions.")
+    parser.add_option("--syn", type="str", default="", dest="syn", help="if using synonymous variants, please provide the filename for synonymous variants")
+    
     opts, args = parser.parse_args()
 
-    main(opts.vcf_dir, opts.input_filename, opts.output_header, opts.input_zip, opts.output_zip, opts.chromosome, opts.background_binned_filename, opts.polymorphic_count, opts.quality_filter)
+    main(opts.vcf_dir, opts.input_filename, opts.output_header, opts.input_zip, opts.output_zip, opts.chromosome, opts.background_binned_filename, opts.polymorphic_count, opts.quality_filter, opts.syn)
     
     
