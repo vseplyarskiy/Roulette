@@ -8,7 +8,7 @@ Unfortunately, we cannot use the raw mutation rates directly because we need to 
 
 We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing a neutral sites will be the most accurate way to scale the mutation rate properly.
 
-Below is instructions on how to get a probability of a  mutation under neutrality.
+Below is instructions on how to run the script(s).
 
 ## Instruction for packages
 
