@@ -1,8 +1,8 @@
 <h1 align="center"> Adding Roulette Rates </h1>
 
-With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. We wrote some code in python to make it easier for people to use the mutation rate estimates for their own analyses.
+With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. Here we have a python script to make it easier for people to use the mutation rate estimates for their own analyses.
 
-First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). For Roulette, you can multiply the raw rates by 1.015*10^-7 to get the per generation mutation rate. For Carlson rates, you can multiply by 2.086*10^-9. The gnomAD rates are already scaled to per-generation mutation rate.
+First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). For Roulette, you can multiply the raw rates by 1.015*10^-7 to get the per generation mutation rate. For Carlson rates, you can multiply by 2.086*10^-9. The gnomAD rates is already scaled to per-generation mutation rate.
 
 Unfortunately, we cannot use the raw mutation rates directly because we need to linearly scale the mutation rate to match the effective population size of the population sequencing data (more samples increases the likelihood of observing a mutation). Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral sites, which will refer to as background sites. 
 
