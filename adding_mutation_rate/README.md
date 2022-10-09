@@ -1,14 +1,16 @@
 <h1 align="center"> Adding Roulette Rates </h1>
 
-With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. Here, we have a python script to make it easier for people to use the mutation rate estimates for their own analyses (the script will calculate the probablility of observing a mutation in a site for you).
+With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. To facilitate analyses using Roulette, we provide a python script to convert unscaled Roulette esimates into the probablility of observing a particular mutation in a site. Scaling rates is important because the probability of actually observing mutations can differ based on the type and composition of the sample. Samples of de novo mutations may differ depending on the age distribution of parents, and the probability of observing a particular mutation in a population sample strongly depends on the sample size.
 
-First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). For Roulette, you can multiply the raw rates by $1.015*10^-7$ to get the per generation mutation rate. For Carlson rates, you can multiply by $2.086 * 10^-9$. The gnomAD rates is already scaled to per-generation mutation rate.
+First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). 
 
-Unfortunately, we cannot use the raw mutation rates directly because we need to linearly scale the mutation rate to match the effective population size of the population sequencing data (more samples increases the likelihood of observing a mutation). Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral sites, which will refer to as background sites. After scaling the mutation rate we can use the formula $p = 1 - e^{-\mu}$, where $\mu$ is the scaled rate, to get the probability of the site being polymorphic.
+If you simply wish to convert the provided estimates to approximate per-generation rates here are some scaling factors you may use. For Roulette, you can multiply the raw rates by $1.015*10^-7$ to get the per generation mutation rate. For Carlson rates, you can multiply by $2.086 * 10^-9$. The gnomAD rates are already scaled to be approximately per-generation.
 
-We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing a neutral sites will be the most accurate way to scale the mutation rate properly.
+In population samples, we cannot use the raw mutation rates directly because we need to linearly scale the mutation rate to match the effective population size of the population sequencing data (more samples increases the likelihood of observing a mutation). Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral sites, which will refer to as background sites. After scaling the mutation rate we can use the formula $p = 1 - e^{-\mu}$, where $\mu$ is the scaled rate, to get the probability of the site being polymorphic.
 
-Below is instructions on how to run the script.
+We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing neutral sites will be the most accurate way to scale the mutation rate properly.
+
+Below are instructions on how to run the script.
 
 ## Instruction for packages
 
