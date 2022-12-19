@@ -8,7 +8,7 @@ If you simply wish to convert the provided estimates to approximate per-generati
 
 In population samples, we cannot use the raw mutation rates directly because we need to linearly scale the mutation rate to match the effective population size of the population sequencing data (more samples increases the likelihood of observing a mutation). Therefore, we need to scale the mutation rate so that the number of expected mutations equals the number of observed mutations for a set of neutral sites, which will refer to as background sites. After scaling the mutation rate we can use the formula $p = 1 - e^{-\mu}$, where $\mu$ is the scaled rate, to get the probability of the site being polymorphic.
 
-We provide three ways to choose a set of background sites. The users can use synonymous sites, the whole genome, or manually provide a set of neutral sites. While the first two options are easier, we think that manually choosing neutral sites will be the most accurate way to scale the mutation rate properly.
+We provide two ways to choose a set of background sites. The users can use synonymous sites or manually provide a set of neutral sites. While the first options is easier, we think that manually choosing neutral sites will be the most accurate way to scale the mutation rate properly.
 
 Below are instructions on how to run the script.
 
