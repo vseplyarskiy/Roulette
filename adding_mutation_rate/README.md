@@ -53,7 +53,3 @@ The script will output two files output_header.tsv file, which is the same tsv a
   python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --background_sites output_header_binned.tsv --polymorphic_count number_of_mutations_in_background_sites
 ```
 Please count up the number of observed mutations in the background sites, and pass as an argument to --polymorphic_count.
-
-## Whole Genome as Background Sites
-
-This script is currently in progress.
