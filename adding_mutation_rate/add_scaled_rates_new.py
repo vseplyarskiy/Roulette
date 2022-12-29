@@ -10,38 +10,48 @@ from scipy.optimize import minimize
 from dask.distributed import Client
 import dask.dataframe as dd
 
-def scale_by_syn(vcf_dir, input_filename):
-    df = dd.read_csv(vcf_dir + "/all_hq_synonymous_variants.tsv.gz", sep = "\t")
+def scale_by_background(vcf_dir, input_filename, background, denovo):
+    
+    if background == 1:
+        df = dd.read_csv(vcf_dir + "/all_hq_synonymous_variants.tsv", sep = "\t")
+    else:
+        df = dd.read_csv(vcf_dir + "/noncoding/*.tsv.gz", sep = "\t")
 
     df_observed = dd.read_csv(input_filename, sep = "\t")
     df_observed["polymorphic"] = 1
 
     df_merged = df[["CHROM", "POS", "REF", "ALT", "mu"]].merge(df_observed[["CHROM", "POS", "REF", "ALT", "polymorphic"]], how = "left", on = ["CHROM", "POS", "REF", "ALT"])
-    df_group = pd.DataFrame(df.groupby("mu").agg({"polymorphic": ['size', 'sum']}).compute())
-    df_group.columns = df_group.columns.droplevel()
+    
+    if denovo == 0:
+        df_group = pd.DataFrame(df_merged.groupby("mu").agg({"polymorphic": ['size', 'sum']}).compute())
+        df_group.columns = df_group.columns.droplevel()
 
-    df_group = df_group.rename({'size': "total", "sum": "polymorphic"}, axis = 1)
-    df_group = df_group.reset_index()
+        df_group = df_group.rename({'size': "total", "sum": "polymorphic"}, axis = 1)
+        df_group = df_group.reset_index()
+        
+        df_group["poisson_lambda"] = 1 - np.exp(-1*df_group["mu"])
+        df_group["expected_polymorphic"] = df_group["poisson_lambda"] * df_group["total"]
 
-    df_group["poisson_lambda"] = 1 - np.exp(-1*df_group["mu"])
-    df_group["expected_polymorphic"] = df_group["poisson_lambda"] * df_group["total"]
+        def poisson_function(x):    
+            return abs(sum((1 - np.exp(-1 * x * df_group["mu"]))*df_group["total"]) - sum(df_group["polymorphic"]))
 
-    def poisson_function(x):    
-        return abs(sum((1 - np.exp(-1 * x * df_group["mu"]))*df_group["total"]) - sum(df_group["polymorphic"]))
+        x0 = np.array([1])
+        res = minimize(poisson_function, x0, method='Nelder-Mead', options={'xatol': 1e-3, 'disp': True})
 
-    x0 = np.array([1])
-    res = minimize(poisson_function, x0, method='Nelder-Mead', options={'xatol': 1e-3, 'disp': True})
-
-    # this is the proper scaling factor for the mutation rate
-    k = res.x[0]
+        # this is the proper scaling factor for the mutation rate
+        k = res.x[0]
+    else:
+        mu_sum = df["mu"].sum().compute()
+        polymorphic_sum = df_merged["polymorphic"].sum().compute()
+        k = polymorphic_sum/mu_sum
+        
     return k
 
 
-def main(vcf_dir, input_filename, output_dir, quality_filter, background, seq_type):
+def main(vcf_dir, input_filename, output_dir, quality_filter, background, denovo):
     # step 1: find the proper scaling
     client = Client()
-    if background == "syn":
-        k = scale_by_syn(vcf_dir, input_filename)
+    k = scale_by_background(vcf_dir, input_filename, background, denovo)
         
     # step 2: output new file with mutation rate estimates
     chrom_set = [str(x) for x in range(1, 23)]
@@ -56,7 +66,7 @@ def main(vcf_dir, input_filename, output_dir, quality_filter, background, seq_ty
         mut_reader_v4 = csv.reader(mut_file_v4, delimiter="\t")
         
         #define header for output file
-        header = ["CHROM", "POS", "REF", "ALT", "FILTER", "mu_roulette", "mut_prob"]
+        header = ["CHROM", "POS", "REF", "ALT", "FILTER", "mu_roulette_original", "mut_prob"]
         out_writer.writerow(header)
         
         #iterate over the mut rate
@@ -65,11 +75,16 @@ def main(vcf_dir, input_filename, output_dir, quality_filter, background, seq_ty
             #skip over the comments in the vcf file
             if mut_current_v4[0][0] == "#":
                 continue
-            
+                
             if "MR" in mut_current_v4[7]:            
                 mu = float(mut_current_v4[7].split(";")[1][3:])
-                out_writer.writerow([mut_current_v4[0], mut_current_v4[1], mut_current_v4[3], mut_current_v4[4], 
-                                    mut_current_v4[6], mu, 1 - np.exp(-1 * k * mu)])
+                
+                if denovo == 0:
+                    out_writer.writerow([mut_current_v4[0], mut_current_v4[1], mut_current_v4[3], mut_current_v4[4], 
+                                        mut_current_v4[6], mu, 1 - np.exp(-1 * k * mu)])
+                else:
+                    out_writer.writerow([mut_current_v4[0], mut_current_v4[1], mut_current_v4[3], mut_current_v4[4], 
+                                        mut_current_v4[6], mu, k*mu])
             else:
                 out_writer.writerow([mut_current_v4[0], mut_current_v4[1], mut_current_v4[3], mut_current_v4[4], 
                                     mut_current_v4[6], None, None])                
@@ -84,11 +99,11 @@ if __name__ == "__main__":
     parser.add_option("--input", type="str", dest="input_filename", help="specify input filename, this is a tsv file with each row being a site with mutation; the tsv file must have a CHROM and POS column for the genomic coordinate, in GRCh38, and also REF and ALT column. The input file should be sorted by CHROM and POS, in ascending order. The CHROM column should have strings such as 1, 2, and 3 instead of chr1, chr2, and chr3.")
     parser.add_option("--output_dir", type="str", dest="output_dir", default="", help="specify directory for output files")
     parser.add_option("--quality", type="int", default=1, dest="quality_filter", help="specify quality filter you want. 0 for no filter, 1 for filtering low-quality regions.")
-    parser.add_option("--background_type", type="str", default="syn", dest="background", help="syn for synonymous variants as background. intergenic for intergenic region as background")
-    parser.add_option("--sequence_type", type="str", default="pop", dest="seq_type", help="use pop for population sequencing and denovo for denovo sequencing")
+    parser.add_option("--background_type", type="int", default=1, dest="background", help="1 for synonymous variants (whole exome) as background. 0 for intergenic region as background (whole genome).")
+    parser.add_option("--denovo", type="int", default=0, dest="denovo", help="1 for denovo, 0 for population sequencing (0 is default)")
     
     opts, args = parser.parse_args()
 
-    main(opts.vcf_dir, opts.input_filename, opts.output_dir, opts.quality_filter, opts.background, opts.seq_type)
+    main(opts.vcf_dir, opts.input_filename, opts.output_dir, opts.quality_filter, opts.background, opts.denovo)
     
     

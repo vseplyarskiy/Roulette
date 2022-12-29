@@ -1,0 +1,25 @@
+/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/distributed/node.py:183: UserWarning: Port 8787 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 34063 instead
+  warnings.warn(
+/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/dask/dataframe/io/csv.py:531: UserWarning: Warning gzip compression does not support breaking apart files
+Please ensure that each individual file can fit in memory and
+use the keyword ``blocksize=None to remove this message``
+Setting ``blocksize=None``
+  warn(
+Traceback (most recent call last):
+  File "/n/data2/hms/dbmi/sunyaev/lab/dlee/roulette/git/Roulette/adding_mutation_rate/add_scaled_rates_new.py", line 107, in <module>
+    main(opts.vcf_dir, opts.input_filename, opts.output_dir, opts.quality_filter, opts.background, opts.denovo)
+  File "/n/data2/hms/dbmi/sunyaev/lab/dlee/roulette/git/Roulette/adding_mutation_rate/add_scaled_rates_new.py", line 54, in main
+    k = scale_by_background(vcf_dir, input_filename, background, denovo)
+  File "/n/data2/hms/dbmi/sunyaev/lab/dlee/roulette/git/Roulette/adding_mutation_rate/add_scaled_rates_new.py", line 23, in scale_by_background
+    df_merged = df[["CHROM", "POS", "REF", "ALT", "mu"]].merge(df_observed[["CHROM", "POS", "REF", "ALT", "polymorphic"]], how = "left", on = ["CHROM", "POS", "REF", "ALT"])
+  File "/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/dask/dataframe/core.py", line 4613, in __getitem__
+    meta = self._meta[_extract_meta(key)]
+  File "/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/pandas/core/frame.py", line 3811, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+  File "/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 6108, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/home/djl34/.conda/envs/kl/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 6171, in _raise_if_missing
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['mu'] not in index"

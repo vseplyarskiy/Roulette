@@ -2,7 +2,7 @@
 
 With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. To facilitate analyses using Roulette, we provide a python script to convert the unscaled Roulette estimates into the probablility of observing a particular mutation in a site. Scaling rates is important because the probability of actually observing mutations can differ based on the type and composition of the sample. Samples of de novo mutations may differ depending on the age distribution of parents, and the probability of observing a particular mutation in a population sample strongly depends on the sample size.
 
-First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). 
+First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). Then please unzip the all_hq_synonymous_variants.tsv.gz file to all_hq_synonymous_variants.tsv using the command ```sh gunzip all_hq_synonymous_variants.tsv.gz``` 
 
 If you simply wish to convert the provided estimates to approximate per-generation rates here are some scaling factors you may use. For Roulette, you can multiply the raw rates by $1.015*10^-7$ to get the per generation mutation rate. For Carlson rates, you can multiply by $2.086 * 10^-9$. The gnomAD rates are already scaled to be approximately per-generation.
 
