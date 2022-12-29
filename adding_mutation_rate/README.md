@@ -2,7 +2,7 @@
 
 With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. To facilitate analyses using Roulette, we provide a python script to convert the unscaled Roulette estimates into the probablility of observing a particular mutation in a site. Scaling rates is important because the probability of actually observing mutations can differ based on the type and composition of the sample. Samples of de novo mutations may differ depending on the age distribution of parents, and the probability of observing a particular mutation in a population sample strongly depends on the sample size.
 
-First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). Then please unzip the all_hq_synonymous_variants.tsv.gz file to all_hq_synonymous_variants.tsv using the command ```sh gunzip all_hq_synonymous_variants.tsv.gz``` 
+First, download the raw mutation rate files from this [link](http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/). Then please unzip the all_hq_synonymous_variants.tsv.gz file to all_hq_synonymous_variants.tsv using the command ``` gunzip all_hq_synonymous_variants.tsv.gz``` 
 
 If you simply wish to convert the provided estimates to approximate per-generation rates here are some scaling factors you may use. For Roulette, you can multiply the raw rates by $1.015*10^-7$ to get the per generation mutation rate. For Carlson rates, you can multiply by $2.086 * 10^-9$. The gnomAD rates are already scaled to be approximately per-generation.
 
@@ -18,7 +18,7 @@ We use python3 for our script. Please install python packages pandas, scipy, and
 
 ## Instruction for input files
 
-From a list of sites from which the user wants a probability of observing a mutation, create a tsv file with with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header. Note that we also do not have estimates for X and Y chromosomes.
+Form a list of observed mutations, create a tsv file with with CHROM, POS, REF, and ALT as the first four columns. You may have additional columns after ALT. Please sort the file so that CHROM and POS are in ascending order. For the first row please provide a header. Note that we also do not have estimates for X and Y chromosomes.
 
 Following is the first 10 lines of an example input file:
 ```sh
@@ -30,26 +30,25 @@ CHROM	POS	REF	ALT
 1	924440	G	T	
 1	924443	C	A	
 ```
+Please do not zip the tsv file.
+
+The script will output a new tsv file with the columns "mu_roulette_original" for the original roulette rate and "mut_prob" for the probability of observing a mutation (scaled to the user's dataset). 
+
+We give two options for scaling the mutation rate. First, is the option to choose whether the dataset is a population sequencing dataset or denovo sequencing dataset. Second, the user may choose to scale to match the number of observed synonymous variants (for whole exome sequencing) or to number of observed non-coding variants (for whole genome sequencing).
+
 
 ## Synonymous variants as Background Sites
 
 ```sh
-  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --variants variants_filename --syn 1
+  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input input_filename --output_dir output_directory
 ```
-Roulette_vcf_dir is the directory where the vcf of Roulette rates is located. Input_filename is the filename for the input file described above. variants_filename is the name for the tsv file that contains a list of observed variants in the sample. The file should follow the same format as the input file described above.
+Roulette_vcf_dir is the directory where the vcf of Roulette rates is located. Input_filename is the filename for the input file described above. If the dataset is denovo sequencing, please include the option ``` --denovo 1```. For population sequencing dataset, you do not need to include any extra options.
 
-## Using manual set of Background Sites
-
-To use a user-chosen manual set of sites, as background sites, you must first run add_raw_rates.py.
+## Nonc-coding variants as Background Sites
 
 ```sh
-  python add_raw_rates.py --vcf_dir Roulette_vcf_dir --input_filename background_sites_filename --output_header output_header
+  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input input_filename --output_dir output_header --background_type 0
 ```
-Here, note that background_sites_filename follows the same format as the input file described above. Also, background_sites_filename must include both observed variants and potential variants.
 
-The script will output two files output_header.tsv file, which is the same tsv as background_sites_filename, but with the raw Roulette rates added. The second file is output_header_binned.tsv file, which is the summary of the number of sites for each mutation rate bin. output_header_binned.tsv will be used as an input for the add_scaled_rates.py.
+Similarly to synonymous variants, for denovo sequencing, please include the option ```--denovo 1```.
 
-```sh
-  python add_scaled_rates.py --vcf_dir Roulette_vcf_dir --input_filename input_filename --output_header output_header --background_sites output_header_binned.tsv --polymorphic_count number_of_mutations_in_background_sites
-```
-Please count up the number of observed mutations in the background sites, and pass as an argument to --polymorphic_count.
