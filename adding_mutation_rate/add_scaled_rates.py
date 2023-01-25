@@ -12,20 +12,23 @@ from dask.distributed import Client
 import dask.dataframe as dd
 
 def scale_by_background(vcf_dir, input_filename, background, denovo):
-
+    
     if background == 1:
-        df = dd.read_csv(vcf_dir + "/all_hq_synonymous_variants.tsv", sep = "\t")
+        print("using synonymous as background")
+        df = dd.read_csv(vcf_dir + "/all_hq_synonymous_variants.tsv", sep = "\t", dtype={"CHROM":int, "POS": int, "REF": str, "ALT": str, "mu": float})
     else:
-        # TODO: Make sure dask works with compressed files
-        df = dd.read_csv(vcf_dir + "/noncoding/*.tsv.gz", sep = "\t")
+        print("using intergenic as background")
+        df = dd.read_csv(vcf_dir + "/noncoding/chr*.tsv.gz", sep = "\t", dtype={"CHROM":int, "POS": int, "REF": str, "ALT": str, "mu": float})
 
-    df_observed = dd.read_csv(input_filename, sep = "\t")
+    df_observed = dd.read_csv(input_filename, sep = "\t", dtype={"CHROM":int, "POS": int, "REF": str, "ALT": str})
     df_observed["polymorphic"] = 1
-
+    
     df_merged = df[["CHROM", "POS", "REF", "ALT", "mu"]].merge(df_observed[["CHROM", "POS", "REF", "ALT", "polymorphic"]],
                                                                how = "left", on = ["CHROM", "POS", "REF", "ALT"])
-
+    
     if denovo == 0:
+        print("scaling to population sequencing data")
+        
         df_group = pd.DataFrame(df_merged.groupby("mu").agg({"polymorphic": ['size', 'sum']}).compute())
         df_group.columns = df_group.columns.droplevel()
 
