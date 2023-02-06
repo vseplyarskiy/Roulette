@@ -1,4 +1,7 @@
-<h1 align="center"> Adding Roulette Rates </h1>
+<h1 align="center"> Population Genetics </h1>
+
+This directory is for files related to population genetics simulations.
+
 
 With Roulette, we have a basepair-resolution mutation rate estimates for the human genome. To facilitate analyses using Roulette, we provide a python script to convert the unscaled Roulette estimates into the probablility of observing a particular mutation in a site. Scaling rates is important because the probability of actually observing mutations can differ based on the type and composition of the sample. Samples of de novo mutations may differ depending on the age distribution of parents, and the probability of observing a particular mutation in a population sample strongly depends on the sample size.
 
