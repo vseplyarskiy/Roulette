@@ -14,7 +14,7 @@ Below are instructions on how to run the script.
 
 ## Instruction for packages
 
-We use python3 for our script. Please install python packages pandas, scipy, and numpy.
+We use python3 for our script. Please install python packages pandas, scipy, numpy, and dask.
 
 ## Instruction for input files
 
