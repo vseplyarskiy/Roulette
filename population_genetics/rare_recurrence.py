@@ -401,8 +401,11 @@ def sfs_llhood_Ti(data_count, data_n, Ti, Theta, max_count, max_recur, partition
     sfs_log_p = np.log(sfs) - np.log(np.sum(sfs))
     return np.sum(sfs_log_p[data_count] * data_n)
 
-def sfs_llhood_exp(data_count, data_n, Theta, Upsilon, max_count, max_recur, partition_mats):
-    sfs = recur_sfs_exp(partition_mats, max_count, max_recur, Theta, Upsilon)
+def sfs_llhood_exp(data_count, data_n, Theta, Upsilon, max_count, max_recur, partition_mats, nz=False):
+    if nz:
+        sfs = recur_sfs_exp(partition_mats, max_count, max_recur, Theta, Upsilon)[1:]
+    else:
+        sfs = recur_sfs_exp(partition_mats, max_count, max_recur, Theta, Upsilon)
     sfs_log_p = np.log(sfs) - np.log(np.sum(sfs))
     return np.sum(sfs_log_p[data_count] * data_n)
 
