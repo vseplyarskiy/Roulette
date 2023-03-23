@@ -1,8 +1,7 @@
 import argparse
 from argparse import RawTextHelpFormatter
 
-import pandas as pd
-import numpy as np
+ 
 import scipy.optimize
 import scipy.stats as stats
 
