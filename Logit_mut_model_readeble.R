@@ -5,7 +5,7 @@ require(rms)
 
 setwd("C:/Vova/study/R_scripts_data/R_data/NGM/")
 fn="test_AACGT_T_inter_met1"
-data<-read.table(file="AATTT_A_inter_met", sep="\t"); ### example of the table
+data<-read.table(file="AATTT_A_inter_met", sep="\t"); ### example of the table ### few tables are avalible here http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/input_files/ 
 data<-na.omit(data)
 
 #data[,13]<-data[,13]+0.01
