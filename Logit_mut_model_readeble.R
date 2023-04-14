@@ -4,8 +4,13 @@ library(pROC)
 require(rms)
 
 setwd("C:/Vova/study/R_scripts_data/R_data/NGM/")
-fn="test_AACGT_T_inter_met1"
-data<-read.table(file="AATTT_A_inter_met", sep="\t"); ### example of the table ### few tables are avalible here http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/input_files/ 
+data<-read.table(file="AATTT_A_inter_met", sep="\t",fill=TRUE,header = F); ### example of the table ### few tables are avalible here http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/input_files/ 
+
+###Remove incorrect columns
+data<-na.omit(data)
+numdata<-data[,c(2,4:11,13)]
+numdata[] <- lapply(numdata, as.numeric)
+data[,c(2,4:11,13)]<-numdata
 data<-na.omit(data)
 
 #data[,13]<-data[,13]+0.01
