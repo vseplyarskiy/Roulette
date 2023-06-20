@@ -5,8 +5,10 @@ from argparse import RawTextHelpFormatter
 import scipy.optimize
 import scipy.stats as stats
 
-def exp_likelihood_model(mut_p, bin_p):
-    bin_ll = mut_p * np.log(mut_p) + ((1 - mut_p) * np.log(1 - mut_p))
+def exp_likelihood_model(mut_p, bin_p): 
+    
+    non_mut_p = 1 - mut_p 
+    bin_ll = np.where(mut_p != 0, mut_p * np.log(mut_p), 0) + np.where(non_mut_p != 0, non_mut_p * np.log(non_mut_p), 0)
     return np.sum(bin_ll * bin_p)
 
 def exp_likelihood_null(mut_p, bin_p):
@@ -28,27 +30,75 @@ def sample_sites(sites, mutations):
     mutations_sample = stats.binom.rvs(sites_sample, mutations / sites)
     return sites_sample, mutations_sample
 
-def calc_pR2(sites, mutations, rates):
+def calc_pR2(sites, mutations, rates, rates_distribution = None, polymorphism = True):
     bin_p = sites / np.sum(sites)
 
     # Use a Poisson link to scale rates to the probability of observing a mutation
     # This is relevant if analyzing population data where recurrent mutation is likely
-    def poisson_link(x):
-        return -np.sum(stats.binom.logpmf(k=mutations,
-                                          n=sites,
-                                          p=(1 - np.exp(-x * rates))))
-    # Find a non-awful starting place for optimization
-    # Replace with ML estimate at some point
-    x0 = np.array([-np.log(0.99) / np.max(rates)])
-    scaling_fit = scipy.optimize.minimize(poisson_link, x0, method='Nelder-Mead',
-                                          options={'xatol': 1e-3, 'disp': False})
-    scaling_factor = scaling_fit.x[0]
+    
+    if polymorphism:    
+        def poisson_link(x):
+            return -np.sum(stats.binom.logpmf(k=mutations,
+                                              n=sites,
+                                              p=(1 - np.exp(-x * rates))))
+        # Find a non-awful starting place for optimization
+        # Replace with ML estimate at some point
+        x0 = np.array([-np.log(0.99) / np.max(rates)])
+        scaling_fit = scipy.optimize.minimize(poisson_link, x0, method='Nelder-Mead',
+                                              options={'xatol': 1e-3, 'disp': False})
+        scaling_factor = scaling_fit.x[0]
 
-    mut_p = 1 - np.exp(-scaling_factor * rates)
+        mut_p = 1 - np.exp(-scaling_factor * rates)
+    else:
+        def poisson_link(x):
+            return -np.sum(stats.binom.logpmf(k=mutations,
+                                              n=sites,
+                                              p=x * rates))
+        # Find a non-awful starting place for optimization
+        # Replace with ML estimate at some point
+        x0 = np.array([-np.log(0.99) / np.max(rates)])
+        scaling_fit = scipy.optimize.minimize(poisson_link, x0, method='Nelder-Mead',
+                                              options={'xatol': 1e-3, 'disp': False})
+        scaling_factor = scaling_fit.x[0]
 
+        mut_p = scaling_factor * rates
+        
     # Calculate pseudo-R2 for the observed data
-    e_ll = exp_likelihood_model(mut_p, bin_p)
-    e_ll_null = exp_likelihood_null(mut_p, bin_p)
+    if rates_distribution is None:
+        e_ll = exp_likelihood_model(mut_p, bin_p)
+        e_ll_null = exp_likelihood_null(mut_p, bin_p)
+    else:
+        if polymorphism:    
+            def poisson_link(x):
+                return -np.sum(stats.binom.logpmf(k=mutations,
+                                                  n=sites,
+                                                  p=(1 - np.exp(-x * rates_distribution))))
+            # Find a non-awful starting place for optimization
+            # Replace with ML estimate at some point
+            x0 = np.array([-np.log(0.99) / np.max(rates_distribution)])
+            scaling_fit = scipy.optimize.minimize(poisson_link, x0, method='Nelder-Mead',
+                                                  options={'xatol': 1e-3, 'disp': False})
+            scaling_factor = scaling_fit.x[0]
+
+            mut_p_distribution = 1 - np.exp(-scaling_factor * rates_distribution)
+        
+        else:
+            def poisson_link(x):
+                return -np.sum(stats.binom.logpmf(k=mutations,
+                                                  n=sites,
+                                                  p=x * rates_distribution))
+            # Find a non-awful starting place for optimization
+            # Replace with ML estimate at some point
+            x0 = np.array([-np.log(0.99) / np.max(rates_distribution)])
+            scaling_fit = scipy.optimize.minimize(poisson_link, x0, method='Nelder-Mead',
+                                                  options={'xatol': 1e-3, 'disp': False})
+            scaling_factor = scaling_fit.x[0]
+
+            mut_p_distribution = scaling_factor * rates_distribution
+        
+        e_ll = exp_likelihood_model(mut_p_distribution, bin_p)
+        e_ll_null = exp_likelihood_null(mut_p_distribution, bin_p)
+        
     a_ll = avg_likelihood_sample(sites, mutations, mut_p)
     a_ll_null = null_likelihood_sample(sites, mutations, mut_p, bin_p)
 
@@ -66,11 +116,15 @@ def main():
                         help="Number of bootstrap resamples", type=int)
     parser.add_argument("--out_bootstrap",
                         help="Location to save bootstrap pseudo-R^2 values")
+    parser.add_argument("--rates_distribution",
+                        help="Specify alternative list of mutation rate for mutation rate distribution", default=None)
     args = parser.parse_args()
 
     mut_fname = args.mutation_table
     mut_table = pd.read_csv(mut_fname, sep="\t")
 
+    rates_distribution = args.rates_distribution
+    
     # Group together rows with exactly the same mutation rate
     mut_table = mut_table[["rate", "sites", "mutations"]].groupby("rate").sum().reset_index()
 
@@ -78,7 +132,7 @@ def main():
     sites = mut_table["sites"].to_numpy(dtype=int)
     mutations = mut_table["mutations"].to_numpy(dtype=int)
 
-    max_R2, R2, pR2 = calc_pR2(sites, mutations, rates)
+    max_R2, R2, pR2 = calc_pR2(sites, mutations, rates, rates_distribution)
 
     max_R2_s = []
     R2_s = []
@@ -87,7 +141,7 @@ def main():
     for _ in range(args.n_bootstrap):
         sites_sample, mutations_sample = sample_sites(sites, mutations)
 
-        max_R2_sample, R2_sample, pR2_sample = calc_pR2(sites_sample, mutations_sample, rates)
+        max_R2_sample, R2_sample, pR2_sample = calc_pR2(sites_sample, mutations_sample, rates, rates_distribution)
         max_R2_s.append(max_R2_sample)
         R2_s.append(R2_sample)
         pR2_s.append(pR2_sample)
