@@ -13,7 +13,7 @@ CHROM	POS	REF	ALT<br>
 1	905692	T	C<br>
 1	954695	C	T<br>
 
-If you simply wish to convert the provided estimates to approximate per-generation rates you can multiply by different scaling factors. For Roulette, multiply the raw rates by $1.015*10^{-7}$ to get the per generation mutation rate. For Carlson estimates, use $2.086 * 10^{-9}$. The gnomAD rate estimates are already scaled to be approximately per-generation.
+If you simply wish to convert the provided estimates to approximate per-generation rates you can multiply by different scaling factors. For Roulette, multiply the raw rates by $1.015*10^{-7}$ to get the per generation mutation rate. For Carlson estimates, use $2.086 * 10^{-9}$. The gnomAD rate estimates are already scaled to be approximately per-generation. Please note that this is a mutation rate per **diploid** genome.
 
 In population samples, we cannot use the raw mutation rates directly because we need to linearly scale the mutation rate to match the size and overall genetic diversity of the sample (more individuals increases the likelihood of observing a mutation). Therefore, we need to use a set of putative neutral potential mutations to scale the mutation rate so that the number of expected mutations equals the number of observed mutations. We will refer to the chosen set of neutral mutations as background sites even though each corresponds to one of three possible single nucleotide mutations at a site. After scaling the mutation rate we  use the formula $p = 1 - e^{-\mu}$, where $\mu$ is the scaled rate, to get the probability a given site is polymorphic.
 
