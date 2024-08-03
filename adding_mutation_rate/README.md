@@ -23,7 +23,7 @@ Below are instructions on how to run the script.
 
 ## Instruction for packages
 
-We use python3 for our script. Please install python packages pandas, scipy, numpy, and dask.
+We use python3 for our script. The environment.yml file is provided in this directory.
 
 ## Instruction for input files
 
